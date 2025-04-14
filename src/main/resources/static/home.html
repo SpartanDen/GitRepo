@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Happy Tails - Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <style>
+    body {
+      background-color: #e3ffe3;
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      overflow-x: hidden;
+    }
+
+    .logo-box {
+      width: 50px;
+      height: 50px;
+      background-color: #b8e6b8;
+      border-radius: 10px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+    }
+
+    .top-controls {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 1000;
+    }
+
+    .top-controls button {
+      background-color: #ffefc1;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .top-controls button:hover {
+      background-color: #ffe68a;
+      transform: scale(1.05);
+    }
+
+    #map {
+      height: calc(100vh - 100px);
+      margin-top: 80px;
+      margin-bottom: 70px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+
+    .floating-icons {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 1000;
+    }
+
+    .floating-icons button {
+      background-color: #d9fdd9;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .floating-icons button:hover {
+      transform: scale(1.1);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #b8e6b8;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 2px solid #a1d1a1;
+      z-index: 999;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      animation: slideUp 1s ease;
+    }
+
+    .bottom-nav button {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .bottom-nav button:hover {
+      transform: scale(1.2);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .popup-box {
+      position: fixed;
+      top: 100px;
+      right: 80px;
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      z-index: 2000;
+      width: 250px;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .popup-box h6 {
+      margin-top: 0;
+    }
+
+    @keyframes fadeIn {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo-box"></div>
+
+  <div class="top-controls">
+    <button onclick="window.location.href='report.html'">🐱 Report Cat</button>
+    <button onclick="window.location.href='report.html'">🐶 Report Dog</button>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="floating-icons">
+    <button onclick="togglePopup('notificationPopup')">🔔</button>
+    <button onclick="togglePopup('settingsPopup')">⚙️</button>
+  </div>
+
+  <div class="bottom-nav">
+    <button>🏠</button>
+    <button onclick="window.location.href='report.html'">📋</button>
+    <button onclick="togglePopup('profilePopup')">👤</button>
+    <button onclick="togglePopup('reportPopup')">🐾</button>
+  </div>
+
+  <!-- Popups -->
+  <div id="notificationPopup" class="popup-box">
+    <h6>🔔 Notifications</h6>
+    <p>🐶 This dog at Mumbai has been taken by the vet.</p>
+  </div>
+
+  <div id="profilePopup" class="popup-box">
+    <h6>👤 Profile Info</h6>
+    <p><strong>Name:</strong> Jane Doe</p>
+    <p><strong>Email:</strong> jane@example.com</p>
+    <p><strong>Role:</strong> Helper</p>
+  </div>
+
+  <div id="reportPopup" class="popup-box">
+    <h6>🐾 Your Reports</h6>
+    <ul>
+      <li>🐱 Cat - Chennai - 12 April 2025</li>
+      <li>🐶 Dog - Pondicherry- 10 April 2025</li>
+    </ul>
+  </div>
+
+  <div id="settingsPopup" class="popup-box">
+    <h6>⚙️ Settings</h6>
+    <p>🔄 Change Password</p>
+    <p>🚪 Logout</p>
+  </div>
+
+  <script>
+    var map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    function togglePopup(id) {
+      const allPopups = document.querySelectorAll('.popup-box');
+      allPopups.forEach(popup => {
+        if (popup.id !== id) popup.style.display = 'none';
+      });
+
+      const popup = document.getElementById(id);
+      popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Close popups when clicking outside
+    window.addEventListener('click', function (e) {
+      const popups = document.querySelectorAll('.popup-box');
+      const icons = document.querySelectorAll('.floating-icons button, .bottom-nav button');
+      if (![...icons].includes(e.target)) {
+        popups.forEach(p => p.style.display = 'none');
+      }
+    });
+  </script>
+</body>
+</html>

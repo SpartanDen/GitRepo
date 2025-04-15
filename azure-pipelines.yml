@@ -11,26 +11,6 @@ pool:
   name: 'Dev'
 
 steps:
-# Install JDK 17 from Azul Zulu (OpenJDK)
-- task: JavaToolInstaller@0
-  displayName: 'Install JDK 17'
-  inputs:
-    versionSpec: '17'
-    jdkArchitectureOption: 'x64'
-    jdkSourceOption: 'AzureStorage'
-    azureResourceManagerEndpoint: ''
-    azureStorageAccountName: ''
-    azureContainerName: ''
-    azureCommonVirtualFile: ''
-    jdkFile: ''
-
-# Alternative option using pre-installed JDK (works on Microsoft-hosted agents)
-# - task: UseJava@1
-#   inputs:
-#     version: '17'
-#     jdkArchitectureOption: 'x64'
-
-# Maven build with memory settings
 - task: Maven@3
   displayName: 'Maven Build'
   inputs:

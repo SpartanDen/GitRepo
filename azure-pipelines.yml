@@ -13,11 +13,19 @@ pool:
 steps:
 # First install Maven
 - powershell: |
-    # Download Maven
-    Invoke-WebRequest -Uri "https://archive.apache.org/dist/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.zip" -OutFile "maven.zip"
-    Expand-Archive -Path "maven.zip" -DestinationPath "$env:ProgramFiles\Maven"
-    # Add to PATH
-    Add-Content $env:GITHUB_PATH "$env:ProgramFiles\Maven\apache-maven-3.8.6\bin"
+    steps:
+- powershell: |
+    $mavenVersion = "3.8.6"
+    $mavenZip = "apache-maven-$mavenVersion-bin.zip"
+    $installDir = "$env:USERPROFILE\maven"
+    
+    # Download and install Maven
+    Invoke-WebRequest -Uri "https://archive.apache.org/dist/maven/maven-3/$mavenVersion/binaries/$mavenZip" -OutFile "$env:TEMP\$mavenZip"
+    Expand-Archive -Path "$env:TEMP\$mavenZip" -DestinationPath "$installDir"
+    
+    # Add to PATH for current job
+    $mavenPath = "$installDir\apache-maven-$mavenVersion\bin"
+    Write-Host "##vso[task.prependpath]$mavenPath"
   displayName: 'Install Maven'
 
 # Then run build
@@ -29,3 +37,4 @@ steps:
     goals: 'clean package'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    

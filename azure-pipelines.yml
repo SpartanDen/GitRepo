@@ -8,27 +8,38 @@ trigger:
 - main
 
 pool:
-  name: 'Dev'
+  name: 'Dev'  # Your self-hosted agent pool name
+
+variables:
+  MAVEN_VERSION: '3.8.6'
+  MAVEN_HOME: '$(Agent.ToolsDirectory)/maven'
 
 steps:
-# First install Maven
-- powershell: |
-    steps:
-- powershell: |
-    $mavenVersion = "3.8.6"
-    $mavenZip = "apache-maven-$mavenVersion-bin.zip"
-    $installDir = "$env:USERPROFILE\maven"
-    
-    # Download and install Maven
-    Invoke-WebRequest -Uri "https://archive.apache.org/dist/maven/maven-3/$mavenVersion/binaries/$mavenZip" -OutFile "$env:TEMP\$mavenZip"
-    Expand-Archive -Path "$env:TEMP\$mavenZip" -DestinationPath "$installDir"
-    
-    # Add to PATH for current job
-    $mavenPath = "$installDir\apache-maven-$mavenVersion\bin"
-    Write-Host "##vso[task.prependpath]$mavenPath"
+- task: PowerShell@2
   displayName: 'Install Maven'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Create tools directory if it doesn't exist
+      New-Item -ItemType Directory -Force -Path "$(Agent.ToolsDirectory)" | Out-Null
+      
+      # Download Maven
+      $mavenZip = "apache-maven-$(MAVEN_VERSION)-bin.zip"
+      Write-Host "Downloading Maven $(MAVEN_VERSION)..."
+      Invoke-WebRequest -Uri "https://archive.apache.org/dist/maven/maven-3/$(MAVEN_VERSION)/binaries/$mavenZip" -OutFile "$env:TEMP\$mavenZip"
+      
+      # Extract Maven
+      Write-Host "Installing Maven to $(MAVEN_HOME)..."
+      Expand-Archive -Path "$env:TEMP\$mavenZip" -DestinationPath "$(MAVEN_HOME)"
+      
+      # Add Maven to PATH
+      $mavenPath = "$(MAVEN_HOME)\apache-maven-$(MAVEN_VERSION)\bin"
+      Write-Host "##vso[task.prependpath]$mavenPath"
+      
+      # Verify installation
+      Write-Host "Maven version:"
+      & "$mavenPath\mvn.cmd" --version
 
-# Then run build
 - task: Maven@3
   displayName: 'Maven Build'
   inputs:
@@ -37,4 +48,3 @@ steps:
     goals: 'clean package'
     publishJUnitResults: true
     testResultsFiles: '**/surefire-reports/TEST-*.xml'
-    
